@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 #import "Three20UI/UITableViewAdditions.h"
 
+// Core
+#import "Three20Core/TTCorePreprocessorMacros.h"
+
 // UI
 #import "Three20UI/UIViewAdditions.h"
 
@@ -30,6 +33,8 @@
 /**
  * Additions.
  */
+TT_FIX_CATEGORY_BUG(UITableViewAdditions)
+
 @implementation UITableView (TTCategory)
 
 
@@ -49,8 +54,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)tableCellMargin {
   if (self.style == UITableViewStyleGrouped) {
-    // cdonnelly 2010-08-11: It's wider on iPad... table cells default to 678px wide in a 768px table.
+    // cdonnelly 2010-08-11: It's wider on iPad...
+    // table cells default to 678px wide in a 768px table.
     return TTIsPad() ? 45 : 10;
+
   } else {
     return 0;
   }
@@ -105,7 +112,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)scrollFirstResponderIntoView {
   UIView* responder = [self.window findFirstResponder];
-  UITableViewCell* cell = (UITableViewCell*)[responder ancestorOrSelfWithClass:[UITableViewCell class]];
+  UITableViewCell* cell = (UITableViewCell*)[responder
+                                             ancestorOrSelfWithClass:[UITableViewCell class]];
   if (cell) {
     NSIndexPath* indexPath = [self indexPathForCell:cell];
     if (indexPath) {

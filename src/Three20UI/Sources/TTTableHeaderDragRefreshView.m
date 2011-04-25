@@ -1,17 +1,27 @@
 //
-// Copyright 2009-2010 Facebook
+//  Created by Devin Doty on 10/14/09.
+//  http://github.com/enormego/EGOTableViewPullRefresh
+//  Copyright 2009 enormego. All rights reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+//  Modifications copyright 2010 Facebook.
 //
-//    http://www.apache.org/licenses/LICENSE-2.0
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 
 #import "Three20UI/TTTableHeaderDragRefreshView.h"
@@ -49,6 +59,7 @@
 - (void)showActivity:(BOOL)shouldShow animated:(BOOL)animated {
   if (shouldShow) {
     [_activityView startAnimating];
+
   } else {
     [_activityView stopAnimating];
   }
@@ -79,7 +90,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if(self = [super initWithFrame:frame]) {
+  if (self = [super initWithFrame:frame]) {
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 
     _lastUpdatedLabel = [[UILabel alloc]
@@ -109,11 +120,11 @@
     [self setStatus:TTTableHeaderDragRefreshPullToReload];
     [self addSubview:_statusLabel];
 
+    UIImage* arrowImage = TTSTYLEVAR(tableRefreshHeaderArrowImage);
     _arrowImage = [[UIImageView alloc]
-                   initWithFrame:CGRectMake(25.0f, frame.size.height - 65.0f,
-                                            30.0f, 55.0f)];
-    _arrowImage.contentMode       = UIViewContentModeScaleAspectFit;
-    _arrowImage.image             = TTSTYLEVAR(tableRefreshHeaderArrowImage);
+                   initWithFrame:CGRectMake(25.0f, frame.size.height - 60.0f,
+                                            arrowImage.size.width, arrowImage.size.height)];
+    _arrowImage.image             = arrowImage;
     [_arrowImage layer].transform = CATransform3DMakeRotation(M_PI, 0.0f, 0.0f, 1.0f);
     [self addSubview:_arrowImage];
 
@@ -133,6 +144,8 @@
   TT_RELEASE_SAFELY(_statusLabel);
   TT_RELEASE_SAFELY(_arrowImage);
   TT_RELEASE_SAFELY(_lastUpdatedLabel);
+  TT_RELEASE_SAFELY(_lastUpdatedDate);
+
   [super dealloc];
 }
 

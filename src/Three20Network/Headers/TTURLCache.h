@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -235,13 +235,5 @@
 - (void)invalidateAll;
 
 - (void)logMemoryUsage;
-
-/**
- * Resolves the specified resource URL, taking into account platform suffixes added in 4.0 and later.
- * 
- * Unlike Apple, we support the suffixes in all versions.
- * For further information on suffixes, see "Supporting High-Resolution Screens" in iPhone OS Reference Library.
- */
-- (NSString*) resolveResourcePathFromURL: (NSString*) URL;
 
 @end

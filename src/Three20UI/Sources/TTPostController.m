@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@
 #import "Three20Core/TTGlobalCoreLocale.h"
 #import "Three20Core/TTCorePreprocessorMacros.h"
 #import "Three20Core/NSStringAdditions.h"
+#import "Three20Core/TTGlobalCore.h"
 
 static const CGFloat kMarginX = 5;
 static const CGFloat kMarginY = 6;
@@ -132,6 +133,7 @@ static const CGFloat kMarginY = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showKeyboard {
   UIApplication* app = [UIApplication sharedApplication];
   _originalStatusBarStyle = app.statusBarStyle;
@@ -152,6 +154,7 @@ static const CGFloat kMarginY = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)hideKeyboard {
   UIApplication* app = [UIApplication sharedApplication];
 #ifdef __IPHONE_3_2
@@ -176,7 +179,7 @@ static const CGFloat kMarginY = 6;
 - (void)showActivity:(NSString*)activityText {
   if (nil == _activityView) {
     _activityView = [[TTActivityLabel alloc] initWithStyle:TTActivityLabelStyleWhiteBox];
-    [_screenView addSubview:_activityView];
+    [self.view addSubview:_activityView];
   }
 
   if (nil != activityText) {
@@ -195,8 +198,24 @@ static const CGFloat kMarginY = 6;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)layoutTextEditor {
+  CGFloat keyboard = TTKeyboardHeightForOrientation(TTInterfaceOrientation());
+  _screenView.frame = CGRectMake(0, _navigationBar.bottom,
+                                 self.view.orientationWidth,
+                                 self.view.orientationHeight - (keyboard+_navigationBar.height));
+
+  _textView.frame = CGRectMake(kMarginX, kMarginY+_navigationBar.height,
+                                 _screenView.width - kMarginX*2,
+                                 _screenView.height - kMarginY*2);
+  _textView.hidden = NO;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showAnimationDidStop {
   _textView.hidden = NO;
+
+  [self.superController viewDidDisappear:YES];
 }
 
 
@@ -239,7 +258,10 @@ static const CGFloat kMarginY = 6;
     [_delegate postControllerDidCancel:self];
   }
 
-  [self dismissPopupViewControllerAnimated:YES];
+  BOOL animated = YES;
+
+  [self.superController viewWillAppear:animated];
+  [self dismissPopupViewControllerAnimated:animated];
 }
 
 
@@ -277,7 +299,7 @@ static const CGFloat kMarginY = 6;
   _textView.keyboardAppearance = UIKeyboardAppearanceAlert;
   _textView.backgroundColor = [UIColor clearColor];
   _textView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-  [_screenView addSubview:_textView];
+  [self.view addSubview:_textView];
 
   _navigationBar = [[UINavigationBar alloc] init];
   _navigationBar.barStyle = UIBarStyleBlackOpaque;
@@ -301,6 +323,7 @@ static const CGFloat kMarginY = 6;
   self.view.transform = [self transformForOrientation];
   self.view.frame = [UIScreen mainScreen].applicationFrame;
   _innerView.frame = self.view.bounds;
+  [self layoutTextEditor];
   [UIView commitAnimations];
 }
 
@@ -355,78 +378,32 @@ static const CGFloat kMarginY = 6;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark TTBaseViewController
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)keyboardWillAppear:(BOOL)animated withBounds:(CGRect)bounds {
- [super keyboardWillAppear: animated withBounds: bounds];
- 
-  if ([self isViewLoaded]) {
-    CGRect screenViewFrame = CGRectMake(0, _navigationBar.bottom,
-                                        self.view.orientationWidth,
-                                        self.view.orientationHeight - (bounds.size.height + _navigationBar.height));
-  
-    if (animated) {
-      [UIView beginAnimations: nil context: nil];
-      [UIView setAnimationDelegate: self];
-      [UIView setAnimationDuration: TT_TRANSITION_DURATION];
-      
-      _screenView.frame = screenViewFrame;
-      [UIView commitAnimations];
-    } else {
-      _screenView.frame = screenViewFrame;
-    }
-  }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)keyboardWillDisappear:(BOOL)animated withBounds:(CGRect)bounds {
-  [super keyboardWillDisappear: animated withBounds: bounds];
-  
-  if ([self isViewLoaded]) {
-    CGRect screenViewFrame = CGRectMake(0, _navigationBar.bottom,
-                                        self.view.orientationWidth,
-                                        self.view.orientationHeight - _navigationBar.height);
-    if (animated) {
-      [UIView beginAnimations: nil context: nil];
-      [UIView setAnimationDelegate: self];
-      [UIView setAnimationDuration: TT_TRANSITION_DURATION];
-      _screenView.frame = screenViewFrame;
-      [UIView commitAnimations];
-    } else {
-      _screenView.frame = screenViewFrame;
-    }
-  }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
 #pragma mark TTPopupViewController
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showInView:(UIView*)view animated:(BOOL)animated {
   [self retain];
+
+  [self.superController viewWillDisappear:animated];
+
   UIWindow* window = view.window ? view.window : [UIApplication sharedApplication].keyWindow;
 
   self.view.transform = [self transformForOrientation];
   self.view.frame = [UIScreen mainScreen].applicationFrame;
   [window addSubview:self.view];
 
-    // cdonnelly 2010-07-26: Confused here.
-    // If defaultText has a value, we copy it to the textview and blast it, but if the textView has text, we set the defaultView?!
-    // Why? What is the difference?
+  // cdonnelly 2010-07-26: Confused here.
+  // If defaultText has a value, we copy it to the textview and blast it,
+  // but if the textView has text, we set the defaultView?!
+  // Why? What is the difference?
   if (_defaultText) {
     _textView.text = _defaultText;
-//    TT_RELEASE_SAFELY(_defaultText);
+
   } else {
     _defaultText = [_textView.text retain];
   }
-    
+
   TTDASSERT([_defaultText isEqualToString: _textView.text]);
 
   _innerView.frame = self.view.bounds;
@@ -445,13 +422,11 @@ static const CGFloat kMarginY = 6;
 
     if (!CGRectIsEmpty(originRect)) {
       _screenView.frame = CGRectOffset(originRect, 0, -TTStatusHeight());
+
     } else {
-      _screenView.frame = CGRectMake(0, _navigationBar.bottom,
-                                     self.view.orientationWidth,
-                                     self.view.orientationHeight - TTStatusHeight());
+      [self layoutTextEditor];
       _screenView.transform = CGAffineTransformMakeScale(0.00001, 0.00001);
     }
-    _textView.frame = CGRectInset(_screenView.bounds, kMarginX, kMarginY);
 
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:TT_TRANSITION_DURATION];
@@ -462,7 +437,8 @@ static const CGFloat kMarginY = 6;
     _innerView.alpha = 1;
 
     if (originRect.size.width) {
-      _textView.hidden = NO;
+      [self layoutTextEditor];
+
     } else {
       _screenView.transform = CGAffineTransformIdentity;
     }
@@ -472,12 +448,9 @@ static const CGFloat kMarginY = 6;
   } else {
     _innerView.alpha = 1;
     _screenView.transform = CGAffineTransformIdentity;
-    _textView.hidden = NO;
+    [self layoutTextEditor];
     [self showAnimationDidStop];
   }
-
-  self.autoresizesForKeyboard = YES;
-
 
   [self showKeyboard];
 }
@@ -485,7 +458,6 @@ static const CGFloat kMarginY = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dismissPopupViewControllerAnimated:(BOOL)animated {
-  self.autoresizesForKeyboard = NO;
   if (animated) {
     [self fadeOut];
 
@@ -494,7 +466,6 @@ static const CGFloat kMarginY = 6;
     [self.view removeFromSuperview];
     [self release];
     superController.popupViewController = nil;
-    [superController viewWillAppear:animated];
     [superController viewDidAppear:animated];
   }
 }
@@ -555,6 +526,7 @@ static const CGFloat kMarginY = 6;
 
   if (shouldDismiss) {
     [self dismissWithResult:nil animated:YES];
+
   } else {
     [self showActivity:[self titleForActivity]];
   }
@@ -563,14 +535,16 @@ static const CGFloat kMarginY = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)cancel {
-  // cdonnelly 2010-07-26: Prompt to cancel if the user changed the text at all, including if they blanked it out.
-  if (![NSObject value: _defaultText isEqual: _textView.text]) {
+  if (!TTIsStringWithAnyText(_textView.text)
+      && !_textView.text.isWhitespaceAndNewlines
+      && !(_defaultText && [_defaultText isEqualToString:_textView.text])) {
     UIAlertView* cancelAlertView = [[[UIAlertView alloc] initWithTitle:
       TTLocalizedString(@"Cancel", @"")
       message:TTLocalizedString(@"Are you sure you want to cancel?", @"")
       delegate:self cancelButtonTitle:TTLocalizedString(@"Yes", @"")
       otherButtonTitles:TTLocalizedString(@"No", @""), nil] autorelease];
     [cancelAlertView show];
+
   } else {
     [self dismissWithCancel];
   }
@@ -581,6 +555,8 @@ static const CGFloat kMarginY = 6;
 - (void)dismissWithResult:(id)result animated:(BOOL)animated {
   [_result release];
   _result = [result retain];
+
+  [self.superController viewWillAppear:animated];
 
   if (animated) {
     if ([_delegate respondsToSelector:@selector(postController:willAnimateTowards:)]) {
@@ -607,6 +583,7 @@ static const CGFloat kMarginY = 6;
 
     if (!CGRectIsEmpty(originRect)) {
       _screenView.frame = CGRectOffset(originRect, 0, -TTStatusHeight());
+
     } else {
       _screenView.transform = CGAffineTransformMakeScale(0.00001, 0.00001);
     }

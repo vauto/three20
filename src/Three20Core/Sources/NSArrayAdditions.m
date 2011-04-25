@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #import "Three20Core/NSArrayAdditions.h"
 
+// Core
 #import "Three20Core/NSObjectAdditions.h"
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
@@ -26,54 +27,60 @@
 /**
  * Additions.
  */
+TT_FIX_CATEGORY_BUG(NSArrayAdditions)
+
 @implementation NSArray (TTCategory)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)perform:(SEL)selector {
-  NSArray* copy = [self copy];
-  for (id delegate in copy) {
+  NSArray *copy = [[NSArray alloc] initWithArray:self];
+  NSEnumerator* e = [copy objectEnumerator];
+  for (id delegate; (delegate = [e nextObject]); ) {
     if ([delegate respondsToSelector:selector]) {
       [delegate performSelector:selector];
     }
   }
-  TT_RELEASE_SAFELY(copy);
+  [copy release];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)perform:(SEL)selector withObject:(id)p1 {
-  NSArray* copy = [self copy];
-  for (id delegate in copy) {
+  NSArray *copy = [[NSArray alloc] initWithArray:self];
+  NSEnumerator* e = [copy objectEnumerator];
+  for (id delegate; (delegate = [e nextObject]); ) {
     if ([delegate respondsToSelector:selector]) {
       [delegate performSelector:selector withObject:p1];
     }
   }
-  TT_RELEASE_SAFELY(copy);
+  [copy release];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)perform:(SEL)selector withObject:(id)p1 withObject:(id)p2 {
-  NSArray* copy = [self copy];
-  for (id delegate in copy) {
+  NSArray *copy = [[NSArray alloc] initWithArray:self];
+  NSEnumerator* e = [copy objectEnumerator];
+  for (id delegate; (delegate = [e nextObject]); ) {
     if ([delegate respondsToSelector:selector]) {
       [delegate performSelector:selector withObject:p1 withObject:p2];
     }
   }
-  TT_RELEASE_SAFELY(copy);
+  [copy release];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)perform:(SEL)selector withObject:(id)p1 withObject:(id)p2 withObject:(id)p3 {
-  NSArray* copy = [self copy];
-  for (id delegate in copy) {
+  NSArray *copy = [[NSArray alloc] initWithArray:self];
+  NSEnumerator* e = [copy objectEnumerator];
+  for (id delegate; (delegate = [e nextObject]); ) {
     if ([delegate respondsToSelector:selector]) {
       [delegate performSelector:selector withObject:p1 withObject:p2 withObject:p3];
     }
   }
-  TT_RELEASE_SAFELY(copy);
+  [copy release];
 }
 
 

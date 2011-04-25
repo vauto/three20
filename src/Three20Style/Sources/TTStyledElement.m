@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #import "Three20Style/TTStyledTextNode.h"
 
 // Style (private)
-#import "Three20Style/TTStyledNodeInternal.h"
+#import "Three20Style/private/TTStyledNodeInternal.h"
 
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
@@ -96,6 +96,7 @@
       [strings addObject:node.outerText];
     }
     return [strings componentsJoinedByString:@""];
+
   } else {
     return [super outerText];
   }
@@ -107,11 +108,13 @@
   NSString* html = nil;
   if (_firstChild) {
     html = [NSString stringWithFormat:@"<div>%@</div>", _firstChild.outerHTML];
+
   } else {
     html = @"<div/>";
   }
   if (_nextSibling) {
     return [NSString stringWithFormat:@"%@%@", html, _nextSibling.outerHTML];
+
   } else {
     return html;
   }
@@ -129,6 +132,7 @@
   if (!_firstChild) {
     _firstChild = [child retain];
     _lastChild = [self findLastSibling:child];
+
   } else {
     _lastChild.nextSibling = child;
     _lastChild = [self findLastSibling:child];
@@ -164,6 +168,7 @@
         if (newChild) {
           newChild.nextSibling = oldChild.nextSibling;
           node.nextSibling = newChild;
+
         } else {
           node.nextSibling = oldChild.nextSibling;
         }

@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-#import "Three20Network/TTRequestLoader.h"
+#import "Three20Network/private/TTRequestLoader.h"
 
 // Network
 #import "Three20Network/TTGlobalNetwork.h"
@@ -136,7 +136,7 @@ static const NSInteger kLoadMaxRetries = 2;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)load:(NSURL*)URL {
-  if (!_connection) {
+  if (nil == _connection) {
     [self connectToURL:URL];
   }
 }
@@ -165,6 +165,7 @@ static const NSInteger kLoadMaxRetries = 2;
     TT_RELEASE_SAFELY(_connection);
 
     [_queue loader:self didFailLoadWithError:error];
+
   } else {
     [self connection:nil didReceiveResponse:(NSHTTPURLResponse*)response];
     [self connection:nil didReceiveData:data];
@@ -310,12 +311,20 @@ static const NSInteger kLoadMaxRetries = 2;
   }
 
   _responseData = [[NSMutableData alloc] initWithCapacity:contentLength];
+
+    for (TTURLRequest* request in [[_requests copy] autorelease]) {
+        request.totalContentLength = contentLength;
+    }
+
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)connection:(NSURLConnection*)connection didReceiveData:(NSData*)data {
   [_responseData appendData:data];
+    for (TTURLRequest* request in [[_requests copy] autorelease]) {
+        request.totalBytesDownloaded += [data length];
+    }
 }
 
 
@@ -347,7 +356,7 @@ static const NSInteger kLoadMaxRetries = 2;
 
   } else if (_response.statusCode == 301 || _response.statusCode == 302) {
     [_queue loader:self didLoadResponse:_response data:_responseData];
-      
+
   } else if (_response.statusCode == 304) {
     [_queue loader:self didLoadUnmodifiedResponse:_response];
 
@@ -398,8 +407,8 @@ didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge{
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (NSURLRequest*)connection:(NSURLConnection*)connection 
-            willSendRequest:(NSURLRequest*)request 
+- (NSURLRequest*)connection:(NSURLConnection*)connection
+            willSendRequest:(NSURLRequest*)request
            redirectResponse:(NSURLResponse*)response {
   TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"  WILL SEND REQUEST %@ REDIRECT RESPONSE %@",
                   request, response);
@@ -421,7 +430,9 @@ didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge{
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Deprecated
+/**
+ * Deprecated
+ */
 - (NSString*)URL {
   return _urlPath;
 }

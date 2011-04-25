@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,8 +32,16 @@
 @synthesize state         = _state;
 @synthesize animated      = _animated;
 @synthesize withDelay     = _withDelay;
+@synthesize sourceRect    = _sourceRect;
+@synthesize sourceView    = _sourceView;
+@synthesize sourceButton  = _sourceButton;
 @synthesize transition    = _transition;
-@synthesize sender        = _sender;
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (id)action {
+  return [[[self alloc] init] autorelease];
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +53,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithURLPath:(NSString*)urlPath {
   if (self = [super init]) {
-    TTDASSERT(nil != urlPath);
     self.urlPath = urlPath;
     self.animated = NO;
     self.withDelay = NO;
@@ -71,74 +78,74 @@
   TT_RELEASE_SAFELY(_parentURLPath);
   TT_RELEASE_SAFELY(_query);
   TT_RELEASE_SAFELY(_state);
-  TT_RELEASE_SAFELY(_sender);
+  TT_RELEASE_SAFELY(_sourceView);
+  TT_RELEASE_SAFELY(_sourceButton);
 
   [super dealloc];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)applyParentURLPath:(NSString*)parentURLPath {
+- (TTURLAction*)applyParentURLPath:(NSString*)parentURLPath {
   self.parentURLPath = parentURLPath;
   return self;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)applyQuery:(NSDictionary*)query {
+- (TTURLAction*)applyQuery:(NSDictionary*)query {
   self.query = query;
   return self;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)applyState:(NSDictionary*)state {
+- (TTURLAction*)applyState:(NSDictionary*)state {
   self.state = state;
   return self;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)applyAnimated:(BOOL)animated {
+- (TTURLAction*)applyAnimated:(BOOL)animated {
   self.animated = animated;
   return self;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)applyWithDelay:(BOOL)withDelay {
+- (TTURLAction*)applyWithDelay:(BOOL)withDelay {
   self.withDelay = withDelay;
   return self;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)applyTransition:(UIViewAnimationTransition)transition {
+- (TTURLAction*)applySourceRect:(CGRect)sourceRect {
+  self.sourceRect = sourceRect;
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (TTURLAction*)applySourceView:(UIView*)sourceView {
+  self.sourceView = sourceView;
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (TTURLAction*)applySourceButton:(UIBarButtonItem*)sourceButton {
+  self.sourceButton = sourceButton;
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (TTURLAction*)applyTransition:(UIViewAnimationTransition)transition {
   self.transition = transition;
   return self;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)applySender:(id)sender {
-  self.sender = sender;
-  return self;
-}
-
-#pragma mark -
-#pragma mark NSCopying
-
--(id) copyWithZone: (NSZone *)zone {
-    TTURLAction* copy = [[[self class] allocWithZone: zone] initWithURLPath: self.urlPath];
-    
-    copy.parentURLPath = _parentURLPath;
-    copy->_query = [_query mutableCopyWithZone: zone]; // assign directly to keep retain count correct
-    copy.state = _state;
-    copy.animated = _animated;
-    copy.withDelay = _withDelay;
-    copy.transition = _transition;
-    copy.sender = _sender;
-    
-    return copy;
-}
 
 @end

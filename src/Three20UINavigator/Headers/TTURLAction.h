@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
  *
  * For the default values, see the apply method documentation below.
  */
-@interface TTURLAction : NSObject <NSCopying> {
+@interface TTURLAction : NSObject {
   NSString*     _urlPath;
   NSString*     _parentURLPath;
   NSDictionary* _query;
@@ -37,64 +37,87 @@
   BOOL          _animated;
   BOOL          _withDelay;
 
+  CGRect        _sourceRect;
+  UIView*       _sourceView;
+  UIBarButtonItem* _sourceButton;
+
   UIViewAnimationTransition _transition;
-  id            _sender;
 }
 
 @property (nonatomic, copy)   NSString*     urlPath;
 @property (nonatomic, copy)   NSString*     parentURLPath;
-@property (nonatomic, retain) NSDictionary* query;
-@property (nonatomic, retain) NSDictionary* state;
+@property (nonatomic, copy)   NSDictionary* query;
+@property (nonatomic, copy)   NSDictionary* state;
 @property (nonatomic, assign) BOOL          animated;
 @property (nonatomic, assign) BOOL          withDelay;
+@property (nonatomic, assign) CGRect        sourceRect;
+@property (nonatomic, retain) UIView*       sourceView;
+@property (nonatomic, retain) UIBarButtonItem* sourceButton;
 @property (nonatomic, assign) UIViewAnimationTransition transition;
-@property (nonatomic, retain) id            sender;
+
 /**
- * Create an autoreleased TTURLAction object with a URL path. The path is required.
+ * Create an autoreleased TTURLAction object.
+ */
++ (id)action;
+
+/**
+ * Create an autoreleased TTURLAction object with a URL path.
  */
 + (id)actionWithURLPath:(NSString*)urlPath;
 
 /**
- * Initialize a TTURLAction object with a URL path. The path is required.
+ * Initialize a TTURLAction object with a URL path.
  *
  * Designated initializer.
  */
 - (id)initWithURLPath:(NSString*)urlPath;
 
-/**
- * @default nil
- */
-- (id)applyParentURLPath:(NSString*)parentURLPath;
+- (id)init;
 
 /**
  * @default nil
  */
-- (id)applyQuery:(NSDictionary*)query;
+- (TTURLAction*)applyParentURLPath:(NSString*)parentURLPath;
 
 /**
  * @default nil
  */
-- (id)applyState:(NSDictionary*)state;
+- (TTURLAction*)applyQuery:(NSDictionary*)query;
+
+/**
+ * @default nil
+ */
+- (TTURLAction*)applyState:(NSDictionary*)state;
 
 /**
  * @default NO
  */
-- (id)applyAnimated:(BOOL)animated;
+- (TTURLAction*)applyAnimated:(BOOL)animated;
 
 /**
  * @default NO
  */
-- (id)applyWithDelay:(BOOL)withDelay;
+- (TTURLAction*)applyWithDelay:(BOOL)withDelay;
+
+/**
+ * @default CGRectZero
+ */
+- (TTURLAction*)applySourceRect:(CGRect)sourceRect;
+
+/**
+ * @default nil
+ */
+- (TTURLAction*)applySourceView:(UIView*)sourceView;
+
+/**
+ * @default nil
+ */
+- (TTURLAction*)applySourceButton:(UIBarButtonItem*)sourceButton;
 
 /**
  * @default UIViewAnimationTransitionNone
  */
-- (id)applyTransition:(UIViewAnimationTransition)transition;
-
-/**
- * @default nil
- */
-- (id)applySender:(id)sender;
+- (TTURLAction*)applyTransition:(UIViewAnimationTransition)transition;
 
 
 @end

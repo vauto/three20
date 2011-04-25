@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,6 +46,11 @@ static const NSTimeInterval kGarbageCollectionInterval = 20;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Additions.
+ */
+TT_FIX_CATEGORY_BUG(UIViewController_TTNavigator)
+
 @implementation UIViewController (TTNavigator)
 
 
@@ -86,6 +91,36 @@ static const NSTimeInterval kGarbageCollectionInterval = 20;
     [gsGarbageCollectorTimer invalidate];
     TT_RELEASE_SAFELY(gsGarbageCollectorTimer);
     TT_RELEASE_SAFELY(gsNavigatorControllers);
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (void)ttAddNavigatorController:(UIViewController*)controller {
+
+  // TTNavigatorViewController calls unsetNavigatorProperties in its dealloc.
+  // UICommon has its own garbage collector that will unset another set of properties.
+  if (![controller isKindOfClass:[TTNavigatorViewController class]]) {
+
+    TTDCONDITIONLOG(TTDFLAG_CONTROLLERGARBAGECOLLECTION,
+                    @"Adding a navigator controller.");
+
+    [[UIViewController ttNavigatorControllers] addObject:controller];
+
+    if (nil == gsGarbageCollectorTimer) {
+      gsGarbageCollectorTimer =
+        [[NSTimer scheduledTimerWithTimeInterval: kGarbageCollectionInterval
+                                          target: [UIViewController class]
+                                        selector: @selector(doNavigatorGarbageCollection)
+                                        userInfo: nil
+                                         repeats: YES] retain];
+    }
+#if TTDFLAG_CONTROLLERGARBAGECOLLECTION
+
+  } else {
+    TTDCONDITIONLOG(TTDFLAG_CONTROLLERGARBAGECOLLECTION,
+                    @"Not adding a navigator controller.");
+#endif
   }
 }
 
@@ -154,7 +189,7 @@ static const NSTimeInterval kGarbageCollectionInterval = 20;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)unsetNavigatorProperties {
   TTDCONDITIONLOG(TTDFLAG_CONTROLLERGARBAGECOLLECTION,
-                  @"Unsetting this controller's properties: %X", self);
+                  @"Unsetting this controller's properties: %X", (unsigned int)self);
 
   NSString* urlPath = self.originalNavigatorURL;
   if (nil != urlPath) {
@@ -169,16 +204,16 @@ static const NSTimeInterval kGarbageCollectionInterval = 20;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (void)ttAddNavigatorController:(UIViewController*)controller {
-    
+
     // TTNavigatorViewController calls unsetNavigatorProperties in its dealloc.
     // UICommon has its own garbage collector that will unset another set of properties.
     if (![controller callsUnsetNavigatorPropertiesInDealloc]) {
-        
+
         TTDCONDITIONLOG(TTDFLAG_CONTROLLERGARBAGECOLLECTION,
                         @"Adding a navigator controller.");
-        
+
         [[UIViewController ttNavigatorControllers] addObject:controller];
-        
+
         if (nil == gsGarbageCollectorTimer) {
             gsGarbageCollectorTimer =
             [[NSTimer scheduledTimerWithTimeInterval: kGarbageCollectionInterval
@@ -187,8 +222,9 @@ static const NSTimeInterval kGarbageCollectionInterval = 20;
                                             userInfo: nil
                                              repeats: YES] retain];
         }
-#if TTDFLAG_CONTROLLERGARBAGECOLLECTION
+
     } else {
+#if TTDFLAG_CONTROLLERGARBAGECOLLECTION
         TTDCONDITIONLOG(TTDFLAG_CONTROLLERGARBAGECOLLECTION,
                         @"Not adding a navigator controller.");
 #endif

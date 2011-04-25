@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
   // cdonnelly 2010-08-03: must call -init not -initWithNibName:bundle: to initialize UI.
   if (self = [self init]) {
   }
-    
+
   return self;
 }
 

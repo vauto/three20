@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -184,7 +184,8 @@
  *  http://stackoverflow.com/questions/1197746/uiactionsheet-cancel-button-strange-behaviour
  *  http://nerdhappy.blogspot.com/2009/12/uiactionsheet-vs-uitabbarcontroller.html
  *
- * On rotated screens, the window is NOT rotated, and so we cannot use -[UIView window] as the desired target.
+ * On rotated screens, the window is NOT rotated, and so we cannot use -[UIView window]
+ * as the desired target.
  */
 - (UIView*)popupTargetView;
 

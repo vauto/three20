@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
 //
 
 #import "Three20UI/UIViewAdditions.h"
+
+// Core
+#import "Three20Core/TTCorePreprocessorMacros.h"
 
 // UINavigator
 #import "Three20UINavigator/TTGlobalNavigatorMetrics.h"
@@ -80,7 +83,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 @interface UITouch (TTCategory)
 
+/**
+ *
+ */
 - (id)initInView:(UIView *)view location:(CGPoint)location;
+
+/**
+ *
+ */
 - (void)changeToPhase:(UITouchPhase)phase;
 
 @end
@@ -158,6 +168,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Additions.
+ */
+TT_FIX_CATEGORY_BUG(UIViewAdditions)
+
 @implementation UIView (TTCategory)
 
 
@@ -387,8 +402,10 @@
 - (UIView*)ancestorOrSelfWithClass:(Class)cls {
   if ([self isKindOfClass:cls]) {
     return self;
+
   } else if (self.superview) {
     return [self.superview ancestorOrSelfWithClass:cls];
+
   } else {
     return nil;
   }
@@ -451,6 +468,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSDictionary *)userInfoForKeyboardNotification {
   CGRect screenFrame = TTScreenBounds();
   CGRect bounds = CGRectMake(0, 0, screenFrame.size.width, self.height);
@@ -472,7 +490,8 @@
 - (void)presentAsKeyboardAnimationDidStop {
   [[NSNotificationCenter defaultCenter] postNotificationName:UIKeyboardDidShowNotification
                                                       object:self
-                                                    userInfo:[self userInfoForKeyboardNotification]];
+                                                    userInfo:[self
+                                                              userInfoForKeyboardNotification]];
 }
 
 
@@ -480,7 +499,8 @@
 - (void)dismissAsKeyboardAnimationDidStop {
   [[NSNotificationCenter defaultCenter] postNotificationName:UIKeyboardDidHideNotification
                                                       object:self
-                                                    userInfo:[self userInfoForKeyboardNotification]];
+                                                    userInfo:[self
+                                                              userInfoForKeyboardNotification]];
   [self removeFromSuperview];
 }
 
@@ -489,7 +509,8 @@
 - (void)presentAsKeyboardInView:(UIView*)containingView {
   [[NSNotificationCenter defaultCenter] postNotificationName:UIKeyboardWillShowNotification
                                                       object:self
-                                                    userInfo:[self userInfoForKeyboardNotification]];
+                                                    userInfo:[self
+                                                              userInfoForKeyboardNotification]];
 
   self.top = containingView.height;
   [containingView addSubview:self];
@@ -507,7 +528,8 @@
 - (void)dismissAsKeyboard:(BOOL)animated {
   [[NSNotificationCenter defaultCenter] postNotificationName:UIKeyboardWillHideNotification
                                                       object:self
-                                                    userInfo:[self userInfoForKeyboardNotification]];
+                                                    userInfo:[self
+                                                              userInfoForKeyboardNotification]];
 
   if (animated) {
     [UIView beginAnimations:nil context:nil];
@@ -520,6 +542,7 @@
 
   if (animated) {
     [UIView commitAnimations];
+
   } else {
     [self dismissAsKeyboardAnimationDidStop];
   }
@@ -542,14 +565,14 @@
 - (UIView*)popupTargetView {
   // cdonnelly 2010-03-31: We assume the desired popup target view is the size of the full screen.
   // iPad probably changes that, so if so, this is where to fix it.
-    
+
   CGRect screenBounds = TTScreenBounds();
   for (UIView* view = self; view; view = view.superview) {
     if (CGRectEqualToRect(view.frame, screenBounds)) {
       return view;
     }
   }
-    
+
   // Nothing suitable.  Just return the window...
   return self.window;
 }

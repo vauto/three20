@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,29 +27,31 @@ NSLocale* TTCurrentLocale() {
   if (languages.count > 0) {
     NSString* currentLanguage = [languages objectAtIndex:0];
     return [[[NSLocale alloc] initWithLocaleIdentifier:currentLanguage] autorelease];
+
   } else {
     return [NSLocale currentLocale];
   }
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 NSString* TTLocalizedString(NSString* key, NSString* comment) {
   static NSBundle* bundle = nil;
-  if (!bundle) {
-      static NSString* const kBundleName = @"Three20.bundle";
+  if (nil == bundle) {
+    static NSString* const kBundleName = @"Three20.bundle";
     for (NSBundle* mainBundle in [NSBundle allBundles]) {
-        // direct match?
-        if ([[[mainBundle bundlePath] lastPathComponent] isEqualToString: kBundleName]) {
-            bundle = [mainBundle retain];
-            break;
-        }
-        
-        // is it nearby?
-        NSString* path = [[mainBundle resourcePath]
-          stringByAppendingPathComponent: kBundleName];
-        bundle = [[NSBundle bundleWithPath:path] retain];
-        if (bundle)
-            break;
+      // direct match?
+      if ([[[mainBundle bundlePath] lastPathComponent] isEqualToString: kBundleName]) {
+        bundle = [mainBundle retain];
+        break;
+      }
+
+      // is it nearby?
+      NSString* path = [[mainBundle resourcePath]
+            stringByAppendingPathComponent: kBundleName];
+      bundle = [[NSBundle bundleWithPath:path] retain];
+      if (bundle)
+        break;
     }
   }
 
@@ -65,8 +67,10 @@ NSString* TTDescriptionForError(NSError* error) {
     // Note: If new error codes are added here, be sure to document them in the header.
     if (error.code == NSURLErrorTimedOut) {
       return TTLocalizedString(@"Connection Timed Out", @"");
+
     } else if (error.code == NSURLErrorNotConnectedToInternet) {
       return TTLocalizedString(@"No Internet Connection", @"");
+
     } else {
       return TTLocalizedString(@"Connection Error", @"");
     }
